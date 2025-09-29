@@ -16,3 +16,6 @@ Falco runs as a privileged sensor (via kernel module or eBPF) on each Linux node
 ![Image 3](images/Image003.png)  
 ![Image 4](images/Image-004.png)  
 ![Image 5](images/Image-005.png)
+
+## Walkthrough Guide
+See `walkthrough/Falco-K8s-Guide.md` for Steps 2 → 5 and sample files.

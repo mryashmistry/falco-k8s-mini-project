@@ -1,0 +1,26 @@
+cat << 'YAML' > rules/falco_custom_rules_cm.yaml
+customRules:
+  custom-rules.yaml: |-
+    - rule: Write to /etc/passwd
+      desc: Detect any attempt to write to the /etc/passwd file
+      condition: >
+        (evt.type in (open, openat, openat2) and evt.is_open_write=true and fd.typechar='f' and fd.num>=0)
+        and fd.name = "/etc/passwd"
+      output: "Unauthorized modification of /etc/passwd file (user=%user.name)"
+      priority: CRITICAL
+      tags: [filesystem, mitre_persistence, sensitive_file]
+YAML
+
+#How to apply with Helm
+
+helm upgrade --namespace falco falco falcosecurity/falco --set tty=true -f rules/falco_custom_rules_cm.yaml
+# Wait for pods to restart
+kubectl -n falco get pods --watch
+
+#Test the Rule: (Reference)
+kubectl exec -it deployment/nginx -- bash
+# inside container (example)
+echo "testuser:x:0:0:root:/root:/bin/bash" >> /etc/passwd
+# check logs:
+kubectl logs -l app.kubernetes.io/name=falco -n falco -c falco | grep passwd
+
